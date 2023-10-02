@@ -1,12 +1,7 @@
 <h1>HW1</h1>
-<table>
- <tr>
-  <td>
-   <img src="https://raw.githubusercontent.com/FatFang/1101445-swift/main/hw1.jpg">
-  </td>
- <td>
-  
+
   ```swift
+  
 import SwiftUI
 
 struct ContentView: View {
@@ -118,8 +113,5 @@ struct BView: View {
     }
 }
 
-    
   ```
-</td>
-</tr>
-</table>
+<img width="40%" src="https://raw.githubusercontent.com/FatFang/1101445-swift/main/hw1.jpg">
