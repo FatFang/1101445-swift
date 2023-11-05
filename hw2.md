@@ -278,3 +278,5 @@ func whoWinsText(for winner: Int) -> String {
 }
 
   ```
+# HW2 Demo圖片
+<img width="40%" src="https://raw.githubusercontent.com/FatFang/1101445-swift/main/hw2.jpg">
