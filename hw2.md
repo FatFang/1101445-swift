@@ -6,6 +6,8 @@
 <p> (4)有計分板，計算玩家與電腦的分數，平手不算分</p>
 <p> (5)若先達到3分獲勝，且會有彈跳視窗告訴玩家是贏是輸，然後重新遊戲</p>
 
+# HW2 Demo影片的 [通道](https://youtu.be/qv4Kt2t4g7U?si=5AdgHxw54POoOeEI)
+
   ```swift
   
 import SwiftUI
