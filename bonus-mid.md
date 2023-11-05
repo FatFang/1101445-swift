@@ -1,4 +1,4 @@
-<h1>Bonus-mid:日期selection</h1>
+<h1>Bonus-mid:日期section</h1>
 <p>日期元件：選日期後，text會依照選擇的日期標準化輸出</p>
 
   ```swift
