@@ -31,5 +31,486 @@ struct ContentView: View {
 }
 
   ```
-# HW3 Demo圖片
-<img width="40%" src="https://raw.githubusercontent.com/FatFang/1101445-swift/main/hw3.jpg">
+
+<p>
+  MainView
+</p>
+
+  ```swift
+  
+import SwiftUI
+
+struct MainView: View {
+    var body: some View {
+        VStack {
+            Text("TOMICA品牌介紹")
+                .font(.largeTitle)
+                .fontWeight(.heavy)
+                .foregroundStyle(.primary)
+                .background(Color.red)
+                .cornerRadius(10.0)
+                .padding(.top,20)
+            TabView{
+                Group{
+                    WelcomeView()
+                        .tabItem{
+                            Image(systemName: "rosette")
+                            Text("Home")
+                        }
+                    CourseListView()
+                        .tabItem{
+                            Image(systemName: "list.dash")
+                            Text("Introduce")
+                        }
+                    GraphView()
+                        .tabItem{
+                            Image(systemName: "photo.artframe")
+                            Text("Product")
+                        }
+                    SettingView()
+                        .tabItem{
+                            Image(systemName: "wrench.and.screwdriver")
+                            Text("Product")
+                        }
+                }
+                .toolbarBackground(Color.black, for: .tabBar)
+                .toolbarBackground(.visible, for: .tabBar)
+            }
+            .tint(.yellow)
+        }
+    }
+}
+
+struct FullImageRow: View{
+    var thisCourse:Course
+    var body: some View{
+        ZStack{
+            Image(thisCourse.image)
+                .resizable()
+                .frame(height: 180)
+                .aspectRatio(contentMode: .fit)
+                .cornerRadius(10)
+                .overlay(
+                    Rectangle()
+                        .foregroundColor(.black)
+                        .cornerRadius(10)
+                        .opacity(0.2)
+                )
+            Text(thisCourse.name)
+                .font(.system(.title))
+                .fontWeight(.black)
+                .foregroundColor(.white)
+                .offset(x: 0.0, y: 50.0)
+        }
+    }
+}
+
+  ```
+
+<p>
+  LoginView
+</p>
+
+  ```swift
+  
+
+
+  ```
+
+<p>
+  SignupView
+</p>
+
+  ```swift
+  
+
+
+  ```
+
+<p>
+  JsonUtils
+</p>
+
+  ```swift
+  
+import SwiftUI
+
+func loadJsonFile<T: Decodable>(_ filename: String) -> T {
+    let data: Data
+    
+    guard let file = Bundle.main.url(forResource: filename, withExtension: nil)
+    else {
+        fatalError("Couldn't find \(filename) in main bundle.")
+    }
+    
+    
+    do {
+        data = try Data(contentsOf: file)
+    } catch {
+        fatalError("Couldn't load \(filename) from main bundle:\n\(error)")
+    }
+    
+    do {
+        let decoder = JSONDecoder()
+        return try decoder.decode(T.self, from: data)
+    } catch {
+        fatalError("Couldn't parse \(filename) as \(T.self):\n\(error)")
+    }
+}
+
+  ```
+
+<p>
+  AccountData
+</p>
+
+  ```swift
+  
+import SwiftUI
+import PlaygroundSupport
+
+struct AccountData: Identifiable,Decodable,Encodable {
+    var id: Int
+    var account: String
+    var password: String
+}
+
+
+func checkLoginData(loginData: [AccountData],enterAccount: String,enterPassword: String,UserDefaultDATA: [[String]]) -> String{
+    var result: String = "error"
+    for _loginData in loginData{
+        if enterAccount == _loginData.account && enterPassword == _loginData.password{
+            result = "All"
+            break
+        }else if enterAccount == _loginData.account && enterPassword != _loginData.password{
+            result = "password"
+            break
+        }else{
+            result = "account"
+        }
+    }
+    if result == "All"{
+        return result
+    }
+    
+    for d in UserDefaultDATA{
+        print(d[0],d[1])
+        if enterAccount == d[0] && enterPassword == d[1]{
+            result = "All"
+            break
+        }else if enterAccount == d[0] && enterPassword != d[1]{
+            result = "password"
+            break
+        }else{
+            result = "account"
+        }
+    }
+    return result
+}
+
+
+func saveLoginData(loginDataAccount: String,loginDataPassword: String,loginData: [AccountData]) -> String{
+    var result: String = "add"
+    for _loginData in loginData{
+        if loginDataAccount == _loginData.account {
+            result = "noAdd"
+            break
+        }
+    }
+    if result == "noAdd"{
+        return result
+    }
+    let UserDefaultData = UserDefaults.standard.array(forKey: "ac2") as? [[String]] ?? []
+    var dataArray = [[String]]()
+    print(loginDataAccount)
+    for ud in UserDefaultData{
+        dataArray.append(ud)
+    }    
+    dataArray.append([loginDataAccount,loginDataPassword])
+    UserDefaults.standard.set(dataArray,forKey: "ac2")
+    let d = UserDefaults.standard.array(forKey: "ac2") as? [[String]] ?? []
+    print(d)
+    print("-----")
+    return result
+}
+
+  ```
+
+<p>
+  SettingView
+</p>
+
+  ```swift
+  
+import SwiftUI
+
+struct SettingView: View {
+    let displayFontType = [".default",".rounded",".monospaced",".serif"];
+    @State var displayFontSelected = 0
+    @State var IsDeepScheme = false 
+    @State var colorArray:Array = [255.0,255.0,255.0]
+    @State var stepperValue = 0
+    @State var sliderValue = 0.0
+    @State var selectedDate = Date()
+    @AppStorage("UserName") var UserName:String = ""
+    var body: some View {
+        NavigationView{
+            Form( content: {
+                Section(content:{
+                    TextField("Enter your name",text: $UserName)
+                }, header: {
+                    Text("UserName")
+                })
+                Section(header: Text("字型設定")){
+                    Picker(selection:$displayFontSelected,
+                           label:Text("字型選擇(\(displayFontSelected))")){
+                        ForEach(0..<displayFontType.count,id:\.self){
+                            Text(self.displayFontType[$0])
+                        }
+                    }
+                }
+                Section(header: Text("背景風格")){
+                    Toggle(isOn:$IsDeepScheme){
+                        Text("深色(\(String(IsDeepScheme)))")
+                    }
+                }
+                Section(header: Text("計數器")){
+                    Stepper("Stepper(\(stepperValue))",
+                            onIncrement: {stepperValue+=1},
+                            onDecrement: {stepperValue-=1})
+                }
+                Section(header: Text("滑桿(\(sliderValue,specifier:"%.2f")")){
+                    Slider(value: $sliderValue, in:0...1)
+                }
+                Section(header: Text("日期")) { 
+                    DatePicker(formatDate(selectedDate), selection: $selectedDate, in: ...Date(), displayedComponents: .date)
+                }
+            })
+        }
+    }
+}
+func formatDate(_ date: Date) -> String {
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = "YYYY-MM-dd"
+    return dateFormatter.string(from: date)
+}
+
+  ```
+
+<p>
+  CourseListView
+</p>
+
+  ```swift
+  
+import SwiftUI
+
+struct Course:Identifiable{
+    var id = UUID()
+    var name:String
+    var image:String
+    var description:String
+    var isFeature:Bool
+}
+
+var courses = [
+    Course(name: "tomica基本介紹", image: "TomicaLogo2", description: "TOMICA自1970年開始於市場上發售，由最初僅有6款的汽車模型，發展至今已推出數千款以上的小汽車種類並擁有眾多系列，產品行銷世界30餘國；品牌成立50多年來，全球累積銷售超過6億7千萬台，其魅力可說是深入每個家庭",isFeature: false),
+    Course(name: "一般盒車型", image: "RedCar", description: "一般盒車型的價格範圍在150～200NT，所有的車輛的輪子統一，車型以現代新車為主，是全盒種中最便宜的。",isFeature: true),
+    Course(name: "黑紅盒車型", image: "BlackCar", description: "紅黑盒車型的價格範圍在250～300NT，車子主要以復古車為主，且車輛的輪子每台都不同，是依照車輛真實的來模擬，是成為Tomica收藏者的入門款",isFeature: true),
+    Course(name: "無極限車型", image: "Unlimited", description: "無極限車型價格範圍在350～400NT，車子主要以電影或是歷史名車為主，包裝使用吊卡方式來呈現，相當有質感",isFeature: true),
+    Course(name: "載運車系列", image: "Big", description: "載運車的價格是695NT",isFeature: true)
+]
+
+struct BasicImageRow: View{
+    var thisCourse:Course 
+    var body: some View{
+        HStack{
+            Image(thisCourse.image)
+                .resizable()
+                .frame(width: 40, height: 40)
+                .cornerRadius(5)
+            Text(thisCourse.name)
+        }
+    }
+}
+
+struct CourseDetailView:View{
+    @Environment(\.presentationMode) var presentationMode 
+    var thisCourse:Course
+    var body: some View{
+        ScrollView{
+            VStack{
+                Image(thisCourse.image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .clipped()
+                Text(thisCourse.name)
+                    .font(.system(.title, design:.rounded))
+                    .fontWeight(.black)
+                Spacer()
+                Text(thisCourse.description)
+                    .font(.system(.subheadline, design:.rounded))
+                    .fontWeight(.light)
+                Spacer()
+            }
+        }
+        .overlay(
+            HStack{
+                Spacer()
+                VStack{
+                    Button(action:{
+                        self.presentationMode.wrappedValue.dismiss()
+                    },label:{
+                        Image(systemName:"chevron.down.circle.fill")
+                            .font(.largeTitle)
+                            .foregroundColor(.white)
+                    })
+                    .padding(.trailing, 20)
+                    .padding(.top, 40)
+                    Spacer()
+                }
+            }
+        )
+    }
+}
+struct CourseListView: View{
+    @State var showDetailView = false
+    @State var selectedCourse:Course?
+    var body: some View{
+        NavigationView{
+            List(courses){ courseItem in
+                if courseItem.isFeature{
+                    FullImageRow(thisCourse: courseItem)
+                        .onTapGesture{
+                            self.showDetailView = true
+                            self.selectedCourse = courseItem
+                        }
+                }else{
+                    BasicImageRow(thisCourse: courseItem)
+                        .onTapGesture{
+                            self.showDetailView = true
+                            self.selectedCourse = courseItem
+                        }
+                }
+            }
+            .sheet(item: self.$selectedCourse){ thisCourse in
+                CourseDetailView(thisCourse: thisCourse)
+            }
+            .navigationBarTitle("介紹列表")
+        }
+    }
+}
+
+  ```
+
+<p>
+  WelcomeView
+</p>
+
+  ```swift
+  
+import SwiftUI
+
+struct WelcomeView: View{
+    @AppStorage("UserName") var UserName:String = ""
+    var body: some View{
+        VStack{
+            Image("TomicaLogo")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .cornerRadius(50.0)
+            Text("歷經近百年依舊屹立不搖的汽車模型品牌")
+                .fontWeight(.heavy)
+                .lineSpacing(20)
+                .font(.system(size: 32.0))
+                .foregroundColor(.white)
+                .frame(width: 350, height: 150, alignment: .center)
+                .background(Color.red)
+                .cornerRadius(20.0)
+                .multilineTextAlignment(.center)
+            Text("User: " + UserName)
+        }
+    }
+}
+
+  ```
+
+<p>
+  GraphView
+</p>
+
+  ```swift
+  
+import SwiftUI
+
+struct GraphView: View {
+    var body: some View {
+        VStack{
+            Text("TOMICA個車型比例圖")
+                .font(.largeTitle)
+                .fontWeight(.heavy)
+                .foregroundStyle(.primary)
+                .cornerRadius(10.0)
+                .padding(.top,20)
+            ZStack{
+                Path{ path in
+                    path.move(to: CGPoint(x: 200, y: 200))
+                    path.addArc(center: .init(x: 200, y: 200), radius: 150,
+                                startAngle: Angle(degrees: 0.0), endAngle: Angle(degrees: 170),
+                                clockwise: false)
+                }
+                .fill(Color(.systemYellow))
+                //            .offset(x: 10.0,y: 10.0)
+                .overlay(
+                    Text("一般盒")
+                        .font(.system(size: 30))
+                        .bold()
+                        .offset(x: 40,y: 45)
+                )
+                Path{ path in
+                    path.move(to: CGPoint(x: 200, y: 200))
+                    path.addArc(center: .init(x: 200, y: 200), radius: 150,
+                                startAngle: Angle(degrees: 140), endAngle: Angle(degrees: 200),
+                                clockwise: false)
+                }
+                .fill(Color(.systemTeal))
+                .overlay(
+                    Text("載運車")
+                        .font(.system(size: 30))
+                        .bold()
+                        .offset(x: -130,y: 60)
+                )
+                Path{ path in
+                    path.move(to: CGPoint(x: 200, y: 200))
+                    path.addArc(center: .init(x: 200, y: 200), radius: 150,
+                                startAngle: Angle(degrees: 150), endAngle: Angle(degrees: 250),
+                                clockwise: false)
+                }
+                .fill(Color(.systemRed))
+                .overlay(
+                    Text("紅黑盒")
+                        .font(.system(size: 30))
+                        .bold()
+                        .offset(x: -75,y: -60)
+                )
+                Path{ path in
+                    path.move(to: CGPoint(x: 200, y: 200))
+                    path.addArc(center: .init(x: 200, y: 200), radius: 150,
+                                startAngle: Angle(degrees: 250), endAngle: Angle(degrees: 360),
+                                clockwise: false)
+                }
+                .fill(Color(.systemPurple))
+                .overlay(
+                    Text("無極限")
+                        .font(.system(size: 30))
+                        .bold()
+                        .offset(x: 60,y: -90)
+                )
+            }
+        }
+        
+        
+    }
+}
+
+  ```
