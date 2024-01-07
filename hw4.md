@@ -113,7 +113,74 @@ struct FullImageRow: View{
 
   ```swift
   
+import SwiftUI
 
+struct LoginView: View {
+    @Binding var LoginSucess:Bool
+    
+    @State private var goToSignup = false
+    @State private var account: String = ""
+    @State private var password: String = ""
+    @State private var showingAlert = false
+    @State private var alertMessage = ""
+    @State private var isLoginSuccessful = false
+    @State private var isLogin = ""
+    //    let UserData = UserDefaults.standard.array(forKey: "ac2") as? [[String]] ?? []
+    var body: some View {
+        NavigationView {
+            VStack {
+                
+                TextField("Account", text: $account)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .frame(width: 200)
+                    .padding()
+                
+                SecureField("Password", text: $password)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .frame(width: 200)
+                    .padding()
+                
+                Button("Login") {
+                    
+                    let UserData = UserDefaults.standard.array(forKey: "ac2") as? [[String]] ?? []
+                    isLogin = checkLoginData(loginData: loadJsonFile("User_account.json"), enterAccount: account, enterPassword: password,UserDefaultDATA: UserData)
+                    print(isLogin)
+                    if isLogin == "All"{
+                        showingAlert = true
+                        alertMessage = "登入成功"
+                        self.LoginSucess.toggle()
+                    }else if isLogin == "password"{
+                        showingAlert = true
+                        alertMessage = "密碼錯誤"
+                    }else{
+                        showingAlert = true
+                        alertMessage = "帳號不存在"
+                    }
+                }
+                .alert(isPresented: $showingAlert) {
+                    Alert(title: Text("通知"), message: Text(alertMessage), dismissButton: .default(Text("確認")))
+                }
+                .padding()
+                
+                Button("sign up"){
+                    self.goToSignup = true
+                }
+                NavigationLink(destination: SignupView(), isActive: $goToSignup) {
+                    EmptyView()
+                }
+
+            }
+            
+            
+        }
+    }
+}
+
+struct LoginView_Previews: PreviewProvider {
+    static var previews: some View {
+        LoginView(LoginSucess: .constant(false))
+    }
+}
 
   ```
 
@@ -123,6 +190,78 @@ struct FullImageRow: View{
 
   ```swift
   
+import SwiftUI
+
+struct SignupView: View {
+    @State private var newAccount: String = ""
+    @State private var newPassword: String = ""
+    @State private var confirmPassword: String = ""
+    @State private var showingAlert = false
+    @State private var alertMessage = ""
+    @AppStorage("Account") var Account:String = ""
+    @AppStorage("password") var Password:String = ""
+    //    let data = UserDefaults.standard.stringArray(forKey: "data1") as? [String]
+    var body: some View {
+        VStack {
+            TextField("New Account", text: $newAccount)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .padding()
+            
+            SecureField("New Password", text: $newPassword)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .padding()
+            
+            SecureField("Confirm Password", text: $confirmPassword)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .padding()
+            
+            
+            Button("Register") {
+                registerUser()
+                //                print(data)
+            }
+            .alert(isPresented: $showingAlert) {
+                Alert(title: Text("通知"), message: Text(alertMessage), dismissButton: .default(Text("確認")))
+            }
+            .padding()
+        }
+        .navigationBarTitle("Register")
+        //        .navigationBarBackButtonHidden(true)
+    }
+    
+    private func registerUser() {
+        // 檢查帳號不為空
+        if newAccount.isEmpty {
+            alertMessage = "帳號不能為空白"
+            showingAlert = true
+            return
+        }
+        
+        // 檢查密碼和確認密碼是否一致
+        if newPassword != confirmPassword {
+            alertMessage = "密碼確認錯誤"
+            showingAlert = true
+            return
+        }
+        
+        let sucess = saveLoginData(loginDataAccount: newAccount, loginDataPassword: newPassword,loginData: loadJsonFile("User_account.json"))
+        if sucess == "noAdd"{
+            alertMessage = "帳號已存在"
+            showingAlert = true
+            return
+        }
+        Account = newAccount
+        Password = newPassword
+        alertMessage = "註冊成功！"
+        showingAlert = true
+    }
+}
+
+struct RegisterView_Previews: PreviewProvider {
+    static var previews: some View {
+        SignupView()
+    }
+}
 
 
   ```
