@@ -6,4 +6,6 @@
 
 # HW3(個人收藏櫃)的 [神秘通道](https://github.com/FatFang/1101445-swift/blob/main/hw3.md)
 
+# HW4(tableView)的 [神秘通道](https://github.com/FatFang/1101445-swift/blob/main/hw4.md)
+
 # Bonus-mid(日期section)的 [神秘通道](https://github.com/FatFang/1101445-swift/blob/main/bonus-mid.md)
